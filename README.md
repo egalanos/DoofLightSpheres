@@ -1,4 +1,4 @@
-# ~= Doof sphere lights =~
+# Doof sphere lights
 
 Arduino code for the SH-055 board from Scott LED: https://scottled.en.alibaba.com/
 
