@@ -12,6 +12,8 @@
 #include <EnableInterrupt.h>
 #include <Pushbutton.h>
 
+FASTLED_USING_NAMESPACE
+
 #define VERSION "3"
 
 // Pin definitions
@@ -29,7 +31,6 @@
 CRGB leds[NUM_LEDS];
 CHSV spheres[NUM_SPHERES];
 
-
 Pushbutton red_led_button(BUTTON_RED_PRESS_PIN);
 Pushbutton green_led_button(BUTTON_GREEN_PRESS_PIN);
 Pushbutton blue_led_button(BUTTON_BLUE_PRESS_PIN);
@@ -39,6 +40,35 @@ volatile unsigned long button_event_time = 0;
 
 // Currently using red button for feature enable
 boolean feature_enabled = true;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Doof Light Spheres version#" VERSION " setup()...");
+  
+  pinMode(BUTTON_RED_LED_PIN, OUTPUT);
+  pinMode(BUTTON_GREEN_LED_PIN, OUTPUT);
+  pinMode(BUTTON_BLUE_LED_PIN, OUTPUT);
+
+  digitalWrite(BUTTON_RED_LED_PIN, feature_enabled ? HIGH : LOW);
+  digitalWrite(BUTTON_GREEN_LED_PIN, HIGH); // Mode change always lit up
+  digitalWrite(BUTTON_BLUE_LED_PIN, HIGH); // Not used at present
+
+  enableInterrupt(BUTTON_RED_PRESS_PIN, button_change, CHANGE);
+  enableInterrupt(BUTTON_GREEN_PRESS_PIN, button_change, CHANGE);
+  enableInterrupt(BUTTON_BLUE_PRESS_PIN, button_change, CHANGE);
+  
+  FastLED.addLeds<WS2812, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.setCorrection( CRGB(255, 140, 240) );
+
+  random16_set_seed(analogRead(0));
+  randomSeed(analogRead(0));
+  
+  Serial.println("Setup complete!");
+}
+
+
+
+
 
 #define LOOP_FREQUENCY_HZ 50
 // #define DEBUG 1
@@ -82,30 +112,7 @@ byte prev_pattern_index = 255;
 
 
 
-void setup() {
-  Serial.begin(9600);
-  Serial.println("Doof Light Spheres version#" VERSION " setup()...");
-  
-  pinMode(BUTTON_RED_LED_PIN, OUTPUT);
-  pinMode(BUTTON_GREEN_LED_PIN, OUTPUT);
-  pinMode(BUTTON_BLUE_LED_PIN, OUTPUT);
 
-  digitalWrite(BUTTON_RED_LED_PIN, feature_enabled ? HIGH : LOW);
-  digitalWrite(BUTTON_GREEN_LED_PIN, HIGH); // Mode change always lit up
-  digitalWrite(BUTTON_BLUE_LED_PIN, HIGH); // Not used at present
-
-  enableInterrupt(BUTTON_RED_PRESS_PIN, button_change, CHANGE);
-  enableInterrupt(BUTTON_GREEN_PRESS_PIN, button_change, CHANGE);
-  enableInterrupt(BUTTON_BLUE_PRESS_PIN, button_change, CHANGE);
-  
-  FastLED.addLeds<WS2812, DATA_PIN>(leds, NUM_LEDS);
-  FastLED.setCorrection( CRGB(255, 140, 240) );
-
-  random16_set_seed(analogRead(0));
-  randomSeed(analogRead(0));
-  
-  Serial.println("Setup complete!");
-}
 
 
 #ifdef DEBUG
